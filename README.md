@@ -1,7 +1,7 @@
 radb-as-prefixes
 Маленький CLI‑инструмент для получения IPv4/IPv6 префиксов по AS из RADb (через IRRd !g / !6) и вывода их в разных форматах: plain, JSON, nftables set, ipset script.
 
-Не требует внешних утилит (whois, grep, sort и т.д.) — нужен только Python 3 со стандартной библиотекой (socket, ipaddress, argparse, json).
+Нужен только Python 3 со стандартной библиотекой (socket, ipaddress, argparse, json).
 
 Возможности
 Получение префиксов из RADb по origin‑AS через команды IRRd !gasN и !6asN.
