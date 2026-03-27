@@ -6,6 +6,13 @@ Only **Python 3** with the standard library is required (`socket`, `ipaddress`, 
 
 ---
 
+## Use cases
+Automatically refresh AS prefixes and export them to JSON for use in Xray (e.g. routing rules based on specific ASNs).
+
+Restrict SSH access to only the current GitHub address ranges by generating nftables/ipset rules from the GitHub AS prefixes, so that only GitHub Actions or other GitHub infrastructure can reach your SSH port for automated deployments/commits.
+
+---
+
 ## Why would I use this?
 
 - You want to build dynamic firewall rules based on RADb data (per-AS rules). [web:8]  
