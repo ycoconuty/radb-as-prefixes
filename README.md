@@ -43,7 +43,9 @@ On OpenWrt, install:
 
 ```bash
 opkg update
-opkg install python3 python3-base python3-codecs python3-idna python3-light
+opkg install python3-base python3-codecs python3-idna python3-light
+#or
+opkg install python3
 ```
 
 ---
