@@ -1,96 +1,101 @@
+Here’s a clean English README-style version suitable for GitHub, based on твой текст:
+
 radb-as-prefixes
-Маленький CLI‑инструмент для получения IPv4/IPv6 префиксов по AS из RADb (через IRRd !g / !6) и вывода их в разных форматах: plain, JSON, nftables set, ipset script.
+Small CLI tool to fetch IPv4/IPv6 prefixes for an AS from RADb (via IRRd !g / !6) and output them in various formats: plain text, JSON, nftables set, or ipset script.
 
-Нужен только Python 3 со стандартной библиотекой (socket, ipaddress, argparse, json).
+Only Python 3 with the standard library is required (socket, ipaddress, argparse, json).
 
-Возможности
-Получение префиксов из RADb по origin‑AS через команды IRRd !gasN и !6asN.
+Features
+Fetch prefixes from RADb by origin-AS using IRRd commands !gasN and !6asN.
 
-Поддержка IPv4, IPv6 или обеих семейств.
+Supports IPv4, IPv6, or both families at once.
 
-Коллапс (агрегация) префиксов через ipaddress.collapse_addresses().
+Collapses (aggregates) prefixes via ipaddress.collapse_addresses().
 
-Поддержка форматов вывода:
+Output formats:
 
-plain — один CIDR на строку;
+plain — one CIDR per line
 
-json — JSON‑массив строк;
+json — JSON array of CIDR strings
 
-nft-set — готовый сет для nftables;
+nft-set — ready-to-include nftables set
 
-ipset — shell‑скрипт для ipset.
+ipset — shell script for ipset
 
-Опциональное логирование в файл (--logs).
+Optional debug logging to file (--logs).
 
-Установка
-Требуется Python 3.
-На OpenWrt установите пакеты:
+Installation
+Requires Python 3.
+
+On OpenWrt, install:
 
 bash
 opkg install python3-base python3-codecs python3-idna python3-light
-# или
+# or
 opkg install python3
-Использование
+Usage
 bash
 ./whois.py [AS] [options]
-Если AS не указан, программа попросит ввести его вручную.
+If the AS is omitted, the tool will prompt for it interactively.
 
-Примеры:
+Examples:
 
 bash
-# Оба семейства (по умолчанию)
+# Both families (default)
 ./whois.py AS13335
 
-# Ввод вручную
+# Interactive input
 ./whois.py
 Enter AS (e.g. AS43515): AS13335
-Управление семействами адресов
-По умолчанию: IPv4 + IPv6.
-Флаги:
+Address family selection
+By default, both IPv4 and IPv6 are used.
+
+Flags:
 
 bash
---ipv4     # Только IPv4
---ipv6     # Только IPv6
---ipv4 --ipv6  # То же, что по умолчанию (оба)
-Примеры:
+--ipv4        # IPv4 only
+--ipv6        # IPv6 only
+--ipv4 --ipv6 # Same as default (both)
+Examples:
 
 bash
 ./whois.py AS13335 --ipv4
 ./whois.py AS13335 --ipv6
-Форматы вывода (--mode)
-1. plain (по умолчанию)
+Output formats (--mode)
+1. plain (default)
 bash
 ./whois.py AS13335
-Результат — список CIDR‑блоков, по одному на строку.
+Result: list of CIDR blocks, one per line.
 
 2. json
 bash
 ./whois.py AS13335 --mode json
-Вывод:
+Example output:
 
 json
 ["1.0.0.0/24", "1.1.1.0/24", "104.16.0.0/12", ...]
 3. nft-set
-Генерация готового файла с сетом для nftables:
+Generate a ready-to-include nftables set:
 
 bash
 ./whois.py AS13335 --mode nft-set --set-name cf_as13335 > /etc/nft/cf_as13335.nft
-Пример содержимого:
+Example content:
 
 text
 set cf_as13335 {
-    type ip_addr flags interval
+    type ip_addr
+    flags interval
     elements = { 1.0.0.0/24, 1.1.1.0/24, 2001:db8::/32 }
 }
-IPv4‑только:
+IPv4 only:
 
 bash
 ./whois.py AS13335 --ipv4 --mode nft-set --set-name cf_as13335_v4
-IPv6‑только:
+IPv6 only:
 
 bash
 ./whois.py AS13335 --ipv6 --mode nft-set --set-name cf_as13335_v6
-Использование в nftables:
+Use it in nftables:
 
 text
 table inet filter {
@@ -103,53 +108,55 @@ table inet filter {
     }
 }
 4. ipset
-Генерация shell‑скрипта для ipset:
+Generate an ipset shell script:
 
 bash
 ./whois.py AS13335 --ipv4 --mode ipset --set-name cf_as13335_v4 > cf_as13335_v4.sh
 sh cf_as13335_v4.sh
-Пример:
+Example:
 
 bash
 ipset create cf_as13335_v4 hash:net family inet
 ipset flush cf_as13335_v4
 ipset add cf_as13335_v4 1.0.0.0/24
+ipset add cf_as13335_v4 1.1.1.0/24
 ...
-Важно: для --mode ipset нужно указать ровно одно семейство (--ipv4 или --ipv6), иначе будет ошибка.
+Important: for --mode ipset you must specify exactly one of --ipv4 or --ipv6; if neither or both are given, the tool exits with an error.
 
-Режим raw (--raw)
-Вывод необъединённых (не коллапсированных) префиксов.
+Raw mode (--raw)
+In raw mode the tool prints non-collapsed prefixes (still validated, but not aggregated).
+
+Examples:
 
 bash
-# "сырой" текст
+# Raw plain text
 ./whois.py AS13335 --raw
 
-# JSON
+# Raw JSON
 ./whois.py AS13335 --raw --mode json
 
-# nftables для IPv4
+# Raw nftables set for IPv4
 ./whois.py AS13335 --ipv4 --raw --mode nft-set --set-name cf_as13335_v4_raw
-Логирование
-Для записи отладочной информации:
+Logging
+To write debug logs to a file:
 
 bash
 ./whois.py AS13335 --ipv4 --logs radb.log > prefixes.txt
-prefixes.txt — только CIDR‑ы (stdout)
+prefixes.txt — prefixes only (stdout)
 
-radb.log — логи соединения, команды IRRd, счётчики и т.д.
+radb.log — connection details, IRRd commands, counters, etc.
 
-Ошибка при невозможности открыть лог:
+If the log file cannot be opened:
 
 bash
 ./whois.py AS13335 --logs /root/radb.log
-# stderr: cannot open log file ...
-Обработка ошибок
-Типичные ошибки и примеры:
+stderr: cannot open log file ...
+Error handling
+Typical cases:
 
-Описание	Пример	Сообщение
-Неверный формат AS	./whois.py 13335	AS number must be in the form AS12345
-RADb недоступен	./whois.py AS13335	failed to connect to ...
-Нет префиксов	./whois.py AS65535	No prefixes found for AS65535
-Ошибочный вызов ipset	./whois.py AS13335 --mode ipset	must specify exactly one of --ipv4/--ipv6
-Все ошибки пишутся в stderr, программа завершает работу с ненулевым кодом выхода.
-
+Description	Example	Message
+Invalid AS format	./whois.py 13335	AS number must be in the form AS12345
+RADb unreachable	./whois.py AS13335	failed to connect to ...
+No prefixes for AS	./whois.py AS65535	No prefixes found for AS65535
+Wrong ipset usage	./whois.py AS13335 --mode ipset	must specify exactly one of --ipv4/--ipv6
+All error messages go to stderr, and the tool exits with a non-zero status code.
