@@ -235,4 +235,5 @@ All error messages go to **stderr**, and the tool exits with a non-zero status c
 
 ## License
 
-Add your preferred license here (e.g. MIT, BSD-2-Clause, etc.).
+This project is licensed under the MIT License.  
+See the `LICENSE` file for details.
