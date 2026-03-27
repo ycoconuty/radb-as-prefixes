@@ -1,4 +1,3 @@
-Here’s a clean English README-style version suitable for GitHub, based on твой текст:
 
 radb-as-prefixes
 Small CLI tool to fetch IPv4/IPv6 prefixes for an AS from RADb (via IRRd !g / !6) and output them in various formats: plain text, JSON, nftables set, or ipset script.
